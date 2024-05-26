@@ -1,0 +1,102 @@
+---
+title: "Ejercicio 1.3"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicio 1.3. 
+
+El archivo peso_edad_colest.xlsx disponible en contiene registros correspondientes a 25 individuos respecto de su peso, su edad y el nivel
+de colesterol total en sangre.
+Se pide:
+(a) Realizar el diagrama de dispersión de colesterol en función de la edad y de colesterol en función de peso. Le parece adecuado ajustar un modelo
+lineal para alguno de estos dos pares de variables?
+(b) Estime los coeficientes del modelo lineal para el colesterol en función de
+la edad.
+(c) Estime intervalos de confianza del 95 % para los coeficientes del modelo y compare estos resultados con el test de Wald para los coeficientes. Le
+parece que hay asociación entre estos test y el test de la regresión?
+(d) A partir de esta recta estime los valores de E(Y ) para x = 25 años y x = 48 años. Podría estimarse el valor de E(Y ) para x = 80 años?
+(e) Testee la normalidad de los residuos y haga un gráfico para ver si son homocedásticos.
+
+
+```{r }
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(lmtest)
+```
+
+## Cargamos los datos
+
+```{r}
+datos <- read_excel("C:/Repos/Reg_Av/datasets/peso_edad_colest.xlsx")
+head(datos)
+```
+
+## Diagrama de dispersión de colesterol en función de la edad
+
+```{r}
+ggplot(datos, aes(x = edad, y = colest)) + geom_point()
+```
+
+## Diagrama de dispersión de colesterol en función del peso
+
+```{r}
+ggplot(datos, aes(x = peso, y = colest)) + geom_point()
+
+```
+
+## Ajuste de un modelo lineal para el colesterol en función de la edad
+
+```{r}
+modelo <- lm(colest ~ edad, data = datos)
+summary(modelo)
+
+```
+
+## Estimación de los coeficientes del modelo lineal para el colesterol en función de la edad
+
+```{r}
+modelo$coefficients
+```
+
+## Estimación de intervalos de confianza del 95 % para los coeficientes del modelo
+
+```{r}
+confint(modelo)
+
+```
+
+## Test de Wald para los coeficientes
+
+
+```{r}
+waldtest(modelo)
+
+``` 
+
+## Estimación de los valores de E(Y) para x = 25 años y x = 48 años
+
+```{r}
+newdata <- data.frame(edad = c(25, 48))
+predict(modelo, newdata = newdata, interval = "confidence")
+```
+
+## Test de normalidad de los residuos
+
+```{r}
+shapiro.test(modelo$residuals)
+```
+
+## Gráfico de homocedasticidad
+
+```{r}
+ggplot(datos, aes(x = modelo$fitted.values, y = modelo$residuals)) + geom_point()
+```
+
+
+
+
