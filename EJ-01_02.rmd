@@ -1,0 +1,102 @@
+---
+title: "Ejercicio 1.2."
+output: github_document
+---
+
+## Ejercicio 1.2. 
+Los datos del cuarteto de Anscombe se encuentran en el archivo
+anscombe.xlsx
+Se pide explorar los datos de la siguiente manera:
+(a) Graficar los cuatro pares de datos en un diagrama de dispersión cada uno.
+(b) Hallar los valores medios de las variables para cada par de datos.
+(c) Hallar los valores de la dispersión para cada conjunto de datos.
+(d) Hallar el coeficiente muestral de correlación lineal en cada caso.
+(e) Observar, comentar y concluir.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#incluir librerias
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+```
+
+```{r}
+# Leer los datos del archivo Excel
+datos <- read_excel("C:/Repos/Reg_Av/datasets/anscombe.xlsx")
+```
+
+```{r}
+# Mostrar los datos
+head(datos)
+```
+
+# (a) Graficar los cuatro pares de datos en un diagrama de dispersión cada uno.
+```{r}
+
+# Reestructurar los datos a formato largo
+datos_largos <- datos %>% pivot_longer(
+  cols = c(x1:y4),
+  names_to = c(".value", "par"),
+  names_pattern = "(x|y)(.)"
+)
+
+# Graficar los cuatro pares de datos en un diagrama de dispersión cada uno
+ggplot(datos_largos, aes(x = x, y = y)) +
+  geom_point() +
+  facet_wrap(~par, scales = "free") +
+  ggtitle("Diagrama de dispersión de x vs y")
+```
+
+# (b) Hallar los valores medios de las variables para cada par de datos.
+```{r}
+
+medias <- data.frame(
+  x1 = mean(datos$x1),
+  y1 = mean(datos$y1),
+  x2 = mean(datos$x2),
+  y2 = mean(datos$y2),
+  x3 = mean(datos$x3),
+  y3 = mean(datos$y3),
+  x4 = mean(datos$x4),
+  y4 = mean(datos$y4)
+)
+medias
+
+```
+
+# (c) Hallar los valores de la dispersión para cada conjunto de datos.
+
+```{r}
+# Hallar los valores de la dispersión para cada conjunto de datos
+dispersion <- data.frame(
+  x1 = sd(datos$x1),
+  y1 = sd(datos$y1),
+  x2 = sd(datos$x2),
+  y2 = sd(datos$y2),
+  x3 = sd(datos$x3),
+  y3 = sd(datos$y3),
+  x4 = sd(datos$x4),
+  y4 = sd(datos$y4)
+)   
+dispersion
+```
+
+# (d) Hallar el coeficiente muestral de correlación lineal en cada caso.
+
+```{r}
+# Hallar el coeficiente muestral de correlación lineal en cada caso
+correlacion <- data.frame(
+  x1_y1 = cor(datos$x1, datos$y1),
+  x2_y2 = cor(datos$x2, datos$y2),
+  x3_y3 = cor(datos$x3, datos$y3),
+  x4_y4 = cor(datos$x4, datos$y4)
+)
+correlacion
+```
+
+# (e) Observar, comentar y concluir.
