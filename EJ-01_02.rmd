@@ -1,5 +1,5 @@
 ---
-title: "Ejercicio 1.2."
+title: "Untitled"
 output: github_document
 ---
 
