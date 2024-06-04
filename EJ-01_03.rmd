@@ -7,19 +7,18 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Ejercicio 1.3. 
-
-El archivo peso_edad_colest.xlsx disponible en contiene registros correspondientes a 25 individuos respecto de su peso, su edad y el nivel
-de colesterol total en sangre.
+El archivo peso_edad_colest.xlsx disponible en contiene registros correspondientes a 25 individuos respecto de su peso, su edad y el nivel de colesterol total en sangre.
 Se pide:
-(a) Realizar el diagrama de dispersión de colesterol en función de la edad y de colesterol en función de peso. Le parece adecuado ajustar un modelo
-lineal para alguno de estos dos pares de variables?
-(b) Estime los coeficientes del modelo lineal para el colesterol en función de
-la edad.
-(c) Estime intervalos de confianza del 95 % para los coeficientes del modelo y compare estos resultados con el test de Wald para los coeficientes. Le
-parece que hay asociación entre estos test y el test de la regresión?
-(d) A partir de esta recta estime los valores de E(Y ) para x = 25 años y x = 48 años. Podría estimarse el valor de E(Y ) para x = 80 años?
-(e) Testee la normalidad de los residuos y haga un gráfico para ver si son homocedásticos.
+
+1. Realizar el diagrama de dispersión de colesterol en función de la edad y de colesterol en función de peso. Le parece adecuado ajustar un modelo lineal para alguno de estos dos pares de variables?
+
+2. Estime los coeficientes del modelo lineal para el colesterol en función de la edad.
+
+3. Estime intervalos de confianza del 95 % para los coeficientes del modelo y compare estos resultados con el test de Wald para los coeficientes. Le parece que hay asociación entre estos test y el test de la regresión?
+
+4. A partir de esta recta estime los valores de E(Y ) para x = 25 años y x = 48 años. Podría estimarse el valor de E(Y ) para x = 80 años?
+
+5. Testee la normalidad de los residuos y haga un gráfico para ver si son homocedásticos.
 
 
 ```{r }
@@ -66,7 +65,15 @@ modelo$coefficients
 ## Estimación de intervalos de confianza del 95 % para los coeficientes del modelo
 
 ```{r}
-confint(modelo)
+predichos <- predict(modelo, interval = "prediction", level = 0.95)
+
+nuevos_datos=data.frame(datos,predichos)
+
+ggplot(nuevos_datos, aes(x=edad, y=colest)) + geom_point(col='#0B3B2E') +
+geom_line(aes(y=lwr), color='#088A4B', linetype='dashed' ) +
+geom_line(aes(y=upr), color='#088A4B' , linetype='dashed' ) +
+geom_smooth(method=lm, formula=y~x, se=TRUE, level=0.95,col='#088A4B', fill='pink2') +
+theme_light()
 
 ```
 
@@ -90,13 +97,14 @@ predict(modelo, newdata = newdata, interval = "confidence")
 ```{r}
 shapiro.test(modelo$residuals)
 ```
+como el p-valor es mayor a 0.05, no se rechaza la hipótesis nula de normalidad de los residuos. es decir, los residuos siguen una distribución normal.
 
 ## Gráfico de homocedasticidad
 
 ```{r}
 ggplot(datos, aes(x = modelo$fitted.values, y = modelo$residuals)) + geom_point()
 ```
-
+en el grafico no se observa un patrón claro, por lo que se puede decir que los residuos son homocedasticos.
 
 
 
