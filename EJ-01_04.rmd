@@ -1,0 +1,113 @@
+---
+title: "Ejercicio 1.4"
+output: github_document
+---
+
+Una empresa desarrolló un sistema de energía solar para calentar el agua para una caldera que es parte del sistema de energía del proceso
+productivo. Existe el interés de controlar la estabilidad del sistema, para ello se monitorea el mismo y se registran los datos cada hora. 
+Los datos se encuentran disponibles en el archivo energia.xlsx
+
+1. Realizar el diagrama de dispersión y evaluar si un modelo de regresión lineal es adecuado.
+
+2. Estimar un modelo lineal y verificar la normalidad de los residuos del mismo.
+
+3. En caso de rechazar este supuesto buscar una transformación lineal para este modelo y aplicarla.
+
+4. Realizar el análisis diagnóstico del nuevo modelo y estimar un intervalo de confianza y un intervalo de predicción para 27.5 hs con ambos modelos. Comparar los intervalos.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r }
+library(readxl)
+library(ggplot2)
+library(dplyr)
+library(lmtest)
+library(MASS)
+```
+
+## Cargamos los datos
+
+```{r}
+datos <- read_excel("C:/Repos/Reg_Av/datasets/energia.xlsx")
+head(datos)
+```
+
+## Diagrama de dispersión
+
+```{r}
+ggplot(datos, aes(x = Hora, y = Energía)) + geom_point()
+
+```
+
+En el grafico no se observa una relación lineal entre las variables.     
+
+## Modelo lineal
+
+```{r}
+modelo <- lm(Energía ~ Hora, data = datos)
+summary(modelo)
+```
+
+
+
+```{r}	
+anova(modelo)
+```
+
+el p-valor es de casi 0.6 por lo tanto el modelo no es significativo.
+
+
+## Normalidad de los residuos
+
+```{r}
+residuos <- residuals(modelo)
+shapiro.test(residuos)
+```
+
+Como p-value = 0.006752, se rechaza la hipótesis nula de normalidad de los residuos.
+para tratar de mejorar esto hacemos la Tranformación de Box & Cox 
+
+## Transformación de Box & Cox
+```{r}	
+boxcox(object = modelo, plotit = TRUE)
+```
+
+El gráfico señala que la mejor opción de λ es cercana a -0.5.
+
+```{r}
+
+modelo2 <- lm(Energía ^(-0.5) ~ Hora, data = datos)
+summary(modelo2)
+```
+
+```{r}
+anova(modelo2)
+```
+
+
+## Normalidad de los residuos
+
+```{r}
+residuos2 <- residuals(modelo2)
+shapiro.test(residuos2)
+```
+
+Como p-value = 0.3499, no se rechaza la hipótesis nula de normalidad de los residuos.
+
+## Intervalo de confianza y predicción
+
+```{r}
+confint(modelo, level = 0.95)
+predict(modelo, newdata = data.frame(Hora = 27.5), interval = "prediction", level = 0.95)
+```
+
+```{r}
+confint(modelo2, level = 0.95)
+predict(modelo2, newdata = data.frame(Hora = 27.5), interval = "prediction", level = 0.95)
+```
+
+Los intervalos de confianza y predicción son más estrechos en el modelo transformado.
+
+
